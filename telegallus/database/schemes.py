@@ -47,15 +47,22 @@ class ReplicationChat(Base):
     __tablename__ = "replication_chats"
 
     id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
-
+    chat_tg_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
 
 class MonitoredChat(Base):
     __tablename__ = "monitored_chats"
 
     id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
+    chat_tg_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
+    name: Mapped[str] = mapped_column(String, nullable=True, unique=False)
 
 class MessageMonitoredChat(Base):
-    __tablename__ = "company_chats_tg"
+    __tablename__ = "message_monitored_chat"
 
     id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
+    text: Mapped[str] = mapped_column(String, nullable=True, unique=False)
+    message_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
+    chat_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("monitored_chats.id", ondelete="SET NULL"), nullable=True
+    )
 

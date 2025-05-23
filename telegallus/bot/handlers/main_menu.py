@@ -10,7 +10,12 @@ router = Router()
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
-    await message.answer("Выбери пункт меню", reply_markup=keyboard_main())
+    await message.delete()
+
+
+    await message.bot.send_message(chat_id=message.chat.id,
+                                             text="Выбери пункт меню",
+                                             reply_markup=keyboard_main())
     print(message)
 
 @router.message(F.text.lower() == '❌ отмена ввода данных')
@@ -22,5 +27,7 @@ async def quit(message: Message, state: FSMContext, callback=None):
 class AccountTg(StatesGroup):
     api_id = State()
     api_hash = State()
+    session_id = State()
 
-class
+
+
