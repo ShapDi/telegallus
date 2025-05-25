@@ -5,7 +5,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 
 # from service_connection.back_server_airtable_requests import get_contacts_india
-from service_connection.return_requests import router as return_requests_router
+
 
 from initialization_bot import bot, dp
 from settings import parameters_col
@@ -24,8 +24,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-app.include_router(return_requests_router)
 
 
 if __name__ == "__main__":

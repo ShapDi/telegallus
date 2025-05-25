@@ -6,7 +6,7 @@
 # Настроить генерацию тестов
 # Инструкция
 
-from aiogram.types import InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -60,10 +60,26 @@ def keyboard_main():
     builder.adjust(2, 2, 2, 1)  # Распределение кнопок по 2 в ряду, последняя одна
     return builder.as_markup()
 
-def keyboards_cancellation():
-    keyboards = [[KeyboardButton(text="❌ отмена ввода данных")]]
+def keyboard_add_tg_account(user_bot_id: str):
+    """
+    Основная клавиатура для управления процессом перерепостинга
+    """
+    builder = InlineKeyboardBuilder()
 
-    service = ReplyKeyboardMarkup(keyboard=keyboards,
-                                  resize_keyboard=True, one_time_keyboard=True,
-                                  selective=True)
+    builder.add(
+        InlineKeyboardButton(
+            text="Добавить аккаунт тг",
+            callback_data="add_tg_account",
+        )
+    )
+
+    builder.adjust(2, 2, 2, 1)
+    return builder.as_markup()
+
+
+def keyboards_cancellation():
+    keyboards = [[InlineKeyboardButton(text="❌ отмена ввода данных", callback_data="keyboard_remover")]]
+
+    service = InlineKeyboardMarkup(inline_keyboard=keyboards,
+                                  )
     return service

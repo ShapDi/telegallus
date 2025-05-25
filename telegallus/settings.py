@@ -1,6 +1,8 @@
 from types import SimpleNamespace
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv, dotenv_values
+
+load_dotenv()
 
 TEST = True
 
@@ -21,3 +23,4 @@ def get_parameters():
 
 
 parameters_col = get_parameters()
+print(parameters_col)
