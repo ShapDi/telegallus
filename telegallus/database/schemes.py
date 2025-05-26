@@ -1,3 +1,5 @@
+import uuid
+from cryptography.fernet import Fernet
 from sqlalchemy.orm import (
     Mapped,
     DeclarativeBase,
@@ -8,9 +10,18 @@ from sqlalchemy.orm import (
 from sqlalchemy import String, ForeignKey
 from sqlalchemy import select
 from sqlalchemy.sql import or_
-import uuid
+from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy.ext.hybrid import hybrid_property
+
 
 from telegallus.database.engine import get_session_factory
+from telegallus.settings import parameters_col
+
+
+cipher = Fernet(parameters_col.KEY_SEC.encode('utf-8'))
+encrypted = cipher.encrypt(b"15426378Dima")
+
+decrypted = cipher.decrypt(encrypted)
 
 
 class Base(DeclarativeBase):
@@ -36,7 +47,7 @@ class UserBot(Base):
         async with get_session_factory() as session:
             users_tg_id = await self.get_users_tg_id(self.users_tg_id, session)
             if users_tg_id:
-                return users_tg_id
+                return users_tg_id[0].id
             session.add(self)
             await session.flush()
             id = self.id
@@ -55,12 +66,41 @@ class AccountTgData(Base):
 
 
     name_account: Mapped[str] = mapped_column(String, nullable=True, unique=False)
-    api_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
-    api_hash: Mapped[str] = mapped_column(String, nullable=True, unique=False)
+    api_id: Mapped[str|None] = mapped_column(String, nullable=True, unique=False)
+    api_hash: Mapped[str|None] = mapped_column(String, nullable=True, unique=False)
     user_bot_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("user_bot.id", ondelete="SET NULL"), nullable=True
     )
 
+    @property
+    def api_id_account(self) -> str | None:
+        if self.api_id is None:
+            return None
+        decrypt = cipher.decrypt(self.api_id.encode('utf-8'))
+        return decrypt.decode('utf-8')
+
+    @api_id_account.setter
+    def api_id_account(self, value: str) -> None:
+        if value is None:
+            self.api_id = None
+        else:
+            encrypt = cipher.encrypt(value.encode('utf-8'))
+            self.api_id = encrypt.decode('utf-8')
+
+    @property
+    def api_hash_account(self) -> str| None:
+        if self.api_hash is None:
+            return None
+        decrypt = cipher.decrypt(self.api_hash.encode('utf-8'))
+        return decrypt.decode('utf-8')
+
+    @api_hash_account.setter
+    def api_hash_account(self, value: str) -> None:
+        if value is None:
+            self.api_hash = None
+        else:
+            encrypt = cipher.encrypt(value.encode('utf-8'))
+            self.api_hash = encrypt.decode('utf-8')
 
     async def add_account_tg_data(self):
         async with get_session_factory() as session:
@@ -73,9 +113,15 @@ class AccountTgData(Base):
             await session.commit()
             return id
 
+    async def get_tg_account(self):
+        async with get_session_factory() as session:
+            query = select(AccountTgData).where(or_(AccountTgData.user_bot_id == self.user_bot_id))
+            data = await session.execute(query)
+            data = data.scalars().all()
+            return data
+
     async def get_account_tg_data(self, session):
-        query = select(AccountTgData).where(or_(AccountTgData.name_account == self.name_account, AccountTgData.api_id == self.api_id))
-        print(query)
+        query = select(AccountTgData).where(or_(AccountTgData.name_account == self.name_account))
         data = await session.execute(query)
         data = data.scalars().all()
         return data
@@ -84,7 +130,6 @@ class AccountTgData(Base):
 
 class TelegramBot(Base):
     __tablename__ = "telegram_bots"
-
 
     bot_key: Mapped[str] = mapped_column(String, nullable=True, unique=False)
     session_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
