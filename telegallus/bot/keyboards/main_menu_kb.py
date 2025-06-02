@@ -6,7 +6,7 @@
 # Настроить генерацию тестов
 # Инструкция
 
-from aiogram.types import InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -24,14 +24,8 @@ def keyboard_main(user_bot_id):
     )
     builder.add(
         InlineKeyboardButton(
-            text="Настрока ботов",
-            callback_data="add_bot"
-        )
-    )
-    builder.add(
-        InlineKeyboardButton(
             text="Настройка чатов",
-            callback_data="add_tracked_chat"
+            callback_data=f"management_chat_radar.{user_bot_id}"
         )
     )
     # builder.add(
@@ -80,6 +74,8 @@ def keyboard_add_tg_account(user_bot_id: str):
 def keyboard_management_tg_account(accounts):
     builder = InlineKeyboardBuilder()
 
+    print(accounts)
+
     for account in accounts:
         builder.add(
             InlineKeyboardButton(
@@ -94,6 +90,50 @@ def keyboard_management_tg_account(accounts):
             callback_data="add_tg_account",
         )
     )
+
+    builder.add(
+        InlineKeyboardButton(
+            text="Вернутся в меню",
+            callback_data=f"keyboard_remover",
+        )
+    )
+
+    builder.adjust(1, 1, 1, 1, 2)
+    return builder.as_markup()
+
+def keyboard_management_bot(bots, account_id,user_id):
+    builder = InlineKeyboardBuilder()
+
+    for bot in bots:
+        builder.add(
+            InlineKeyboardButton(
+                text=bot.bot_key_protected,
+                callback_data=f"account.{bot.id}",
+            )
+        )
+
+    builder.add(
+        InlineKeyboardButton(
+            text="Добавить бота",
+            callback_data=f"add_bot.{account_id}",
+        )
+    )
+
+    builder.add(
+        InlineKeyboardButton(
+            text="Назад",
+            callback_data=f"management_tg_account.{user_id}",
+        )
+    )
+
+    builder.adjust(1, 1, 1, 1, 2)
+    return builder.as_markup()
+
+def keyboard_add_bot(bots):
+    pass
+
+def keyboard_chat_radars(chat_radars):
+    builder = InlineKeyboardBuilder()
 
     builder.add(
         InlineKeyboardButton(

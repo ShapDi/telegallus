@@ -5,7 +5,7 @@ description = "project aimed at monitoring and reposting formatted posts"
 authors = [
     {name = "shapranov dmitrii", email = "shapranov.work@gmail.com"},
 ]
-dependencies = ["telethon>=1.40.0", "aiogram>=3.20.0.post0", "python-dotenv>=1.1.0", "fastapi>=0.115.12", "uvicorn>=0.34.2", "sqlalchemy>=2.0.41", "cryptography>=45.0.2", "alembic>=1.15.2", "taskiq>=0.11.17"]
+dependencies = ["telethon>=1.40.0", "aiogram>=3.20.0.post0", "python-dotenv>=1.1.0", "fastapi>=0.115.12", "uvicorn>=0.34.2", "sqlalchemy>=2.0.41", "cryptography>=45.0.3", "alembic>=1.15.2", "taskiq>=0.11.17", "asyncpg>=0.30.0"]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}

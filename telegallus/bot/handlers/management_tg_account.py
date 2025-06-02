@@ -2,6 +2,8 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
+from telethon import TelegramClient
+from telethon.errors import ApiIdInvalidError
 
 from telegallus.bot.keyboards.main_menu_kb import keyboard_main, keyboards_cancellation, keyboard_management_tg_account
 from telegallus.database.schemes import UserBot, AccountTgData
@@ -11,14 +13,12 @@ router = Router()
 @router.callback_query(F.data.startswith("management_tg_account"))
 async def handle_delete_data(callback_query: CallbackQuery, state: FSMContext):
     print(callback_query.data.split("."))
-    user_id = callback_query.data.split(".")[1]
-    account = await AccountTgData(user_bot_id=user_id).get_tg_account()
+    account_id = callback_query.data.split(".")[1]
+    account = await AccountTgData(user_bot_id=account_id).get_tg_account()
     print(account)
     await callback_query.message.bot.edit_message_text(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
         text="Выбери опцию", reply_markup=keyboard_management_tg_account(account)
     )
-    await state.update_data(update_message=callback_query.message.message_id)
-    await state.set_state(AccountTg.name_account_tg)
 
 class AccountTg(StatesGroup):
     name_account_tg = State()

@@ -120,6 +120,13 @@ class AccountTgData(Base):
             data = data.scalars().all()
             return data
 
+    async def get_tg_account_id(self):
+        async with get_session_factory() as session:
+            query = select(AccountTgData).where(or_(AccountTgData.id == self.id))
+            data = await session.execute(query)
+            data = data.scalars().all()
+            return data
+
     async def get_account_tg_data(self, session):
         query = select(AccountTgData).where(or_(AccountTgData.name_account == self.name_account))
         data = await session.execute(query)
@@ -137,6 +144,60 @@ class TelegramBot(Base):
         ForeignKey("accounts_tg_pars.id", ondelete="SET NULL"), nullable=True
     )
 
+    @property
+    def bot_key_protected(self) -> str | None:
+        if self.bot_key is None:
+            return None
+        decrypt = cipher.decrypt(self.bot_key.encode('utf-8'))
+        return decrypt.decode('utf-8')
+
+    @bot_key_protected.setter
+    def bot_key_protected(self, value: str) -> None:
+        if value is None:
+            self.bot_key = None
+        else:
+            encrypt = cipher.encrypt(value.encode('utf-8'))
+            self.bot_key = encrypt.decode('utf-8')
+
+    @property
+    def session_id_bot(self) -> str | None:
+        if self.session_id is None:
+            return None
+        decrypt = cipher.decrypt(self.session_id.encode('utf-8'))
+        return decrypt.decode('utf-8')
+
+    @session_id_bot.setter
+    def session_id_bot(self, value: str) -> None:
+        if value is None:
+            self.session_id = None
+        else:
+            encrypt = cipher.encrypt(value.encode('utf-8'))
+            self.session_id = encrypt.decode('utf-8')
+
+    async def get_telegram_bot(self, session):
+        query = select(TelegramBot).where(or_(TelegramBot.account_tg_pars_id == self.account_tg_pars_id))
+        data = await session.execute(query)
+        data = data.scalars().all()
+        return data
+
+    async def get_account_tg_data(self):
+        async with get_session_factory() as session:
+            query = select(TelegramBot).where(or_(TelegramBot.account_tg_pars_id == self.account_tg_pars_id))
+            data = await session.execute(query)
+            data = data.scalars().all()
+            return data
+
+    async def add_bots(self):
+        async with get_session_factory() as session:
+            bots = await self.get_telegram_bot(session)
+            if bots:
+                return bots
+            session.add(self)
+            await session.flush()
+            id = self.id
+            await session.commit()
+            return id
+
 class ReplicationChat(Base):
     __tablename__ = "replication_chats"
 
@@ -147,6 +208,13 @@ class MonitoredChat(Base):
 
     chat_tg_id: Mapped[str] = mapped_column(String, nullable=True, unique=False)
     name: Mapped[str] = mapped_column(String, nullable=True, unique=False)
+
+    async def get_monitored_chat(self):
+        async with get_session_factory() as session:
+            query = select(MonitoredChat)
+            data = await session.execute(query)
+            data = data.scalars().all()
+            return data
 
 class MessageMonitoredChat(Base):
     __tablename__ = "message_monitored_chat"
