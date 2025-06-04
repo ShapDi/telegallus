@@ -1,4 +1,3 @@
-import asyncio
 
 from fastapi import FastAPI
 import uvicorn
@@ -11,6 +10,7 @@ from initialization_bot import bot, dp
 from settings import parameters_col
 
 # print(asyncio.run(get_contacts_india("recnfEZVQPz2k1CPg")))
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

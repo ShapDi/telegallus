@@ -24,8 +24,7 @@ def keyboard_main(user_bot_id):
     )
     builder.add(
         InlineKeyboardButton(
-            text="Настройка чатов",
-            callback_data=f"management_chat_radar.{user_bot_id}"
+            text="Настройка чатов", callback_data=f"management_chat_radar.{user_bot_id}"
         )
     )
     # builder.add(
@@ -36,8 +35,7 @@ def keyboard_main(user_bot_id):
     # )
     builder.add(
         InlineKeyboardButton(
-            text="Настроить репостинг",
-            callback_data="setup_reposting"
+            text="Настроить репостинг", callback_data="setup_reposting"
         )
     )
     # builder.add(
@@ -47,13 +45,11 @@ def keyboard_main(user_bot_id):
     #     )
     # )
     builder.add(
-        InlineKeyboardButton(
-            text="Инструкция",
-            callback_data="show_instructions"
-        )
+        InlineKeyboardButton(text="Инструкция", callback_data="show_instructions")
     )
     builder.adjust(2, 2, 2, 1)  # Распределение кнопок по 2 в ряду, последняя одна
     return builder.as_markup()
+
 
 def keyboard_add_tg_account(user_bot_id: str):
     """
@@ -70,6 +66,7 @@ def keyboard_add_tg_account(user_bot_id: str):
 
     builder.adjust(1, 1, 1, 1, 1)
     return builder.as_markup()
+
 
 def keyboard_management_tg_account(accounts):
     builder = InlineKeyboardBuilder()
@@ -94,14 +91,15 @@ def keyboard_management_tg_account(accounts):
     builder.add(
         InlineKeyboardButton(
             text="Вернутся в меню",
-            callback_data=f"keyboard_remover",
+            callback_data="keyboard_remover",
         )
     )
 
     builder.adjust(1, 1, 1, 1, 2)
     return builder.as_markup()
 
-def keyboard_management_bot(bots, account_id,user_id):
+
+def keyboard_management_bot(bots, account_id, user_id):
     builder = InlineKeyboardBuilder()
 
     for bot in bots:
@@ -129,25 +127,50 @@ def keyboard_management_bot(bots, account_id,user_id):
     builder.adjust(1, 1, 1, 1, 2)
     return builder.as_markup()
 
+
 def keyboard_add_bot(bots):
     pass
 
-def keyboard_chat_radars(chat_radars):
+
+def keyboard_chat_radars(chat_radars, account_id):
     builder = InlineKeyboardBuilder()
+
+    for chat in chat_radars:
+        builder.add(
+            InlineKeyboardButton(
+                text=chat.name,
+                callback_data=f"account.{chat.id}",
+            )
+        )
+
+    builder.add(
+        InlineKeyboardButton(
+            text="Добавить чат",
+            callback_data=f"add_tracked_chat.{account_id}",
+        )
+    )
 
     builder.add(
         InlineKeyboardButton(
             text="Вернутся в меню",
-            callback_data=f"keyboard_remover",
+            callback_data="keyboard_remover",
         )
     )
 
     builder.adjust(1, 1, 1, 1, 2)
     return builder.as_markup()
 
-def keyboards_cancellation():
-    keyboards = [[InlineKeyboardButton(text="❌ отмена ввода данных", callback_data="keyboard_remover")]]
 
-    service = InlineKeyboardMarkup(inline_keyboard=keyboards,
-                                  )
+def keyboards_cancellation():
+    keyboards = [
+        [
+            InlineKeyboardButton(
+                text="❌ отмена ввода данных", callback_data="keyboard_remover"
+            )
+        ]
+    ]
+
+    service = InlineKeyboardMarkup(
+        inline_keyboard=keyboards,
+    )
     return service

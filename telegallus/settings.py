@@ -6,6 +6,7 @@ load_dotenv()
 
 TEST = True
 
+
 def get_parameters():
     config = dotenv_values(".env")
     parameters = {}
@@ -23,4 +24,3 @@ def get_parameters():
 
 
 parameters_col = get_parameters()
-print(parameters_col)
